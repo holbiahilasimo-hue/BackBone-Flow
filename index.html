@@ -604,7 +604,7 @@ $('next').addEventListener('click',()=>{ location.hash='#'+(step+1); });
 
 /* ---------- auto-scroll on every screen: speed and time on screen are derived from the amount of text and media on it ---------- */
 const auto=(function(){
-  const WPM=150, MEDIA_MS=6000, MIN_MS=8000, MAX_MS=60000, DWELL=2500, VMIN=14, VMAX=45, LAST=5, DEMO_WAIT=4000;
+  const WPM=150, MEDIA_MS=6000, MIN_MS=8000, MAX_MS=60000, DWELL=2500, VMIN=14, VMAX=45, LAST=5, DEMO_WAIT=2500;
   const btn=$('auto-btn'); let raf=null, paused=false, t0=0, last=0, bottomAt=0, acc=0, need=MIN_MS, speed=24, lastCalc=0, demoTimer=null, done=false;
   const SKIP='svg,.day,.log,.wa-pop,.station,.stepper,.timer,.demo-notice,[hidden]';
   const VISUALS='video,svg.ov,.flow-band,.mini-track,.cal';
@@ -616,9 +616,10 @@ const auto=(function(){
     return Math.min(MAX_MS,Math.max(MIN_MS, words/WPM*60000 + media*MEDIA_MS));
   }
   window.__readMs=()=>Math.round(readMs()/1000);
+  const FIXED={1:25000,3:25000,4:30000};   // times set by Hila per screen (including the pause at the bottom)
   function calc(){                        // spread the scroll distance over the reading time, within a comfortable range
-    need=readMs(); const dist=Math.max(0,document.documentElement.scrollHeight-innerHeight-window.scrollY);
-    speed=Math.min(VMAX,Math.max(VMIN, dist/Math.max(1,(need-(performance.now()-t0))/1000)));
+    need=FIXED[step]?FIXED[step]-DWELL:readMs(); const dist=Math.max(0,document.documentElement.scrollHeight-innerHeight-window.scrollY);
+    speed=Math.min(step===3?70:VMAX,Math.max(VMIN, dist/Math.max(1,(need-(performance.now()-t0))/1000)));
   }
   function setBtn(){ btn.hidden=reduce||done; btn.setAttribute('aria-pressed',String(!paused)); btn.querySelector('span').textContent=paused?'המשך גלילה אוטומטית':'עצירת הגלילה האוטומטית'; btn.classList.toggle('paused',paused); }
   function loop(ts){
